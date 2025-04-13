@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking System - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-2xl font-bold text-blue-600">Welcome, <span id="userName" class="text-gray-800">User</span>!</h1>
+                <div class="flex items-center space-x-4">
+                    <button id="timeBtn" class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors flex items-center">
+                        <i class="far fa-clock mr-2 text-gray-600"></i>
+                        <span id="currentTime" class="text-gray-700">-</span>
+                    </button>
+                    <button id="darkModeBtn" class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-moon text-gray-600"></i>
+                    </button>
+                    <button id="logoutBtn" class="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors flex items-center">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Left Column (5/12) -->
+            <div class="col-span-5 space-y-6">
+                <!-- Balance Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-blue-100 p-6 hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Current Balance</h2>
+                        <button class="text-blue-600 hover:text-blue-700">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="balance-section cursor-pointer group">
+                        <p class="text-sm text-gray-500 mb-2">Click to reveal/hide balance</p>
+                        <p id="balanceAmount" class="text-4xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">****</p>
+                    </div>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="bg-white rounded-xl shadow-sm border border-orange-100 p-6 h-[calc(100vh-350px)]">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800">Transaction History</h2>
+                        <div class="flex items-center space-x-2">
+                            <button id="showTransactionsBtn" class="px-3 py-1 bg-orange-100 text-orange-600 rounded-lg text-sm hover:bg-orange-200 transition-colors">
+                                <i class="fas fa-eye mr-1"></i>Show
+                            </button>
+                            <button id="exportPdfBtn" class="px-3 py-1 bg-orange-100 text-orange-600 rounded-lg text-sm hover:bg-orange-200 transition-colors">
+                                <i class="fas fa-download mr-1"></i>Export PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div id="transactionList" class="hidden space-y-3 overflow-y-auto max-h-[calc(100vh-450px)] pr-2">
+                        <!-- Transactions will be listed here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column (7/12) -->
+            <div class="col-span-7 space-y-6">
+                <!-- Quick Actions Grid -->
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Deposit Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-green-100 p-6 hover:shadow-md transition-shadow cursor-pointer deposit-money">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Deposit Money</h3>
+                                <p class="text-sm text-gray-500">Add funds to your account</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Withdraw Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-red-100 p-6 hover:shadow-md transition-shadow cursor-pointer withdraw-money">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-hand-holding-usd text-red-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Withdraw Money</h3>
+                                <p class="text-sm text-gray-500">Take out funds from your account</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Currency Converter -->
+                    <div class="bg-white rounded-xl shadow-sm border border-purple-100 p-6 hover:shadow-md transition-shadow relative">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exchange-alt text-purple-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Currency Converter</h3>
+                                <p class="text-sm text-gray-500">Convert between different currencies</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <input type="number" id="convertAmount" 
+                                   class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                                   placeholder="Amount">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="relative">
+                                    <label class="block text-sm text-gray-500 mb-1">From</label>
+                                    <select id="fromCurrency" 
+                                            class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-purple-500 focus:ring-1 focus:ring-purple-500 appearance-none pr-8 bg-white">
+                                        <option value="INR">INR</option>
+                                        <option value="USD">USD</option>
+                                        <option value="EUR">EUR</option>
+                                        <option value="GBP">GBP</option>
+                                    </select>
+                                    <div class="absolute right-2 top-[60%] transform -translate-y-1/2 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <label class="block text-sm text-gray-500 mb-1">To</label>
+                                    <select id="toCurrency" 
+                                            class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-purple-500 focus:ring-1 focus:ring-purple-500 appearance-none pr-8 bg-white">
+                                        <option value="USD">USD</option>
+                                        <option value="INR">INR</option>
+                                        <option value="EUR">EUR</option>
+                                        <option value="GBP">GBP</option>
+                                    </select>
+                                    <div class="absolute right-2 top-[60%] transform -translate-y-1/2 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="convertBtn" 
+                                    class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                Convert
+                            </button>
+                            <p id="convertResult" class="text-center font-semibold text-gray-700"></p>
+                        </div>
+                    </div>
+
+                    <!-- Loan Eligibility -->
+                    <div class="bg-white rounded-xl shadow-sm border border-yellow-100 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-hand-holding-usd text-yellow-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">Loan Eligibility</h3>
+                                <p class="text-sm text-gray-500">Check your loan eligibility</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <input type="number" id="loanAmount" 
+                                   class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500"
+                                   placeholder="Loan Amount">
+                            <input type="number" id="loanTerm" 
+                                   class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500"
+                                   placeholder="Loan Term (months)">
+                            <button id="checkEligibilityBtn" 
+                                    class="w-full bg-yellow-600 text-white py-2 rounded-lg hover:bg-yellow-700 transition-colors">
+                                Check Eligibility
+                            </button>
+                            <div id="eligibilityResult" class="text-center font-semibold"></div>
+                            <p class="text-xs text-gray-500 mt-2">
+                                * Minimum account balance required: ₹5,000<br>
+                                * Minimum loan term: 7 months
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Us -->
+                <div class="bg-white rounded-xl shadow-sm border border-blue-100 p-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-headset text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Contact Us</h3>
+                            <p class="text-sm text-gray-500">Get in touch with our support team</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">Email Support</h4>
+                            <p class="text-gray-600">support@bankingsystem.com</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-700 mb-2">Phone Support</h4>
+                            <p class="text-gray-600">1-800-BANKING</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Deposit Money</h2>
+                <button onclick="document.getElementById('depositModal').classList.add('hidden')" 
+                        class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <input type="number" 
+                   class="w-full px-4 py-2 border border-gray-200 rounded-lg mb-4 focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                   placeholder="Enter amount">
+            <div class="flex gap-4">
+                <button id="confirmDeposit" 
+                        class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    Confirm
+                </button>
+                <button onclick="document.getElementById('depositModal').classList.add('hidden')" 
+                        class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Withdraw Money</h2>
+                <button onclick="document.getElementById('withdrawModal').classList.add('hidden')" 
+                        class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <input type="number" 
+                   class="w-full px-4 py-2 border border-gray-200 rounded-lg mb-4 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                   placeholder="Enter amount">
+            <div class="flex gap-4">
+                <button id="confirmWithdraw" 
+                        class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors">
+                    Confirm
+                </button>
+                <button onclick="document.getElementById('withdrawModal').classList.add('hidden')" 
+                        class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        // Check for logged in user and update name
+        function updateUserName() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userNameElement = document.getElementById('userName');
+            
+            if (currentUser && currentUser.username) {
+                // Capitalize first letter of username
+                const displayName = currentUser.username.charAt(0).toUpperCase() + currentUser.username.slice(1);
+                userNameElement.textContent = displayName;
+            } else {
+                window.location.href = 'index.html'; // Redirect to login if no user found
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserName(); // Update user name immediately
+            
+            // Update current time
+            function updateTime() {
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+            }
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            // Toggle balance visibility
+            document.querySelector('.balance-section').addEventListener('click', function() {
+                const balanceAmount = document.getElementById('balanceAmount');
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (currentUser) {
+                    if (balanceAmount.textContent === '****') {
+                        balanceAmount.textContent = `₹${currentUser.balance.toFixed(2)}`;
+                    } else {
+                        balanceAmount.textContent = '****';
+                    }
+                }
+            });
+
+            // Dark mode toggle
+            document.getElementById('darkModeBtn').addEventListener('click', function() {
+                document.documentElement.classList.toggle('dark');
+                document.documentElement.classList.toggle('light');
+                localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+            });
+
+            // Initialize dark mode from localStorage
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+            }
+
+            // Add dark mode styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .dark {
+                    --tw-bg-opacity: 1;
+                    background-color: rgb(17 24 39 / var(--tw-bg-opacity));
+                    color: rgb(243 244 246);
+                }
+                .dark .bg-white {
+                    background-color: rgb(31 41 55);
+                }
+                .dark .bg-gray-50 {
+                    background-color: rgb(31 41 55);
+                }
+                .dark .bg-gray-100 {
+                    background-color: rgb(31 41 55);
+                }
+                .dark .text-gray-800 {
+                    color: rgb(243 244 246);
+                }
+                .dark .text-gray-700 {
+                    color: rgb(209 213 219);
+                }
+                .dark .text-gray-600 {
+                    color: rgb(156 163 175);
+                }
+                .dark .text-gray-500 {
+                    color: rgb(107 114 128);
+                }
+                .dark .border {
+                    border-color: rgb(55 65 81);
+                }
+                .dark .border-blue-100,
+                .dark .border-green-100,
+                .dark .border-red-100,
+                .dark .border-purple-100,
+                .dark .border-yellow-100,
+                .dark .border-gray-200 {
+                    border-color: rgb(55 65 81);
+                }
+                .dark .shadow-sm {
+                    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+                }
+                .dark .hover\\:shadow-md:hover {
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+                }
+                .dark input,
+                .dark select {
+                    background-color: rgb(31 41 55);
+                    color: rgb(243 244 246);
+                    border-color: rgb(55 65 81);
+                }
+                .dark input::placeholder {
+                    color: rgb(156 163 175);
+                }
+                .dark option {
+                    background-color: rgb(31 41 55);
+                    color: rgb(243 244 246);
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Update currency selectors to default to INR
+            const fromCurrency = document.getElementById('fromCurrency');
+            const toCurrency = document.getElementById('toCurrency');
+            fromCurrency.value = 'INR';
+            toCurrency.value = 'USD';
+
+            // Toggle transactions visibility
+            document.getElementById('showTransactionsBtn').addEventListener('click', function() {
+                const transactionList = document.getElementById('transactionList');
+                const showBtn = document.getElementById('showTransactionsBtn');
+                if (transactionList.classList.contains('hidden')) {
+                    transactionList.classList.remove('hidden');
+                    showBtn.innerHTML = '<i class="fas fa-eye-slash mr-1"></i>Hide';
+                } else {
+                    transactionList.classList.add('hidden');
+                    showBtn.innerHTML = '<i class="fas fa-eye mr-1"></i>Show';
+                }
+            });
+
+            // Style fixes for dark mode
+            style.textContent += `
+                .dark select {
+                    background-color: rgb(31 41 55);
+                }
+                .dark select option {
+                    background-color: rgb(31 41 55);
+                    color: rgb(243 244 246);
+                }
+                .dark .fa-chevron-down {
+                    color: rgb(156 163 175);
+                }
+            `;
+
+            // Add PDF export functionality
+            document.getElementById('exportPdfBtn').addEventListener('click', function() {
+                try {
+                    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                    
+                    if (!currentUser) {
+                        showToast('Please log in to export transactions', 'error');
+                        return;
+                    }
+
+                    if (!currentUser.transactions || !Array.isArray(currentUser.transactions) || currentUser.transactions.length === 0) {
+                        showToast('No transactions available to export', 'error');
+                        return;
+                    }
+
+                    // Initialize jsPDF
+                    const { jsPDF } = window.jspdf;
+                    if (!jsPDF) {
+                        showToast('PDF generation library not loaded. Please refresh the page.', 'error');
+                        return;
+                    }
+
+                    const doc = new jsPDF();
+
+                    // Add title
+                    doc.setFontSize(18);
+                    doc.text('Transaction History', 14, 20);
+
+                    // Add user info
+                    doc.setFontSize(12);
+                    doc.text(`Account: ${currentUser.username}`, 14, 30);
+                    doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 37);
+                    doc.text(`Balance: ₹${(currentUser.balance || 0).toFixed(2)}`, 14, 44);
+
+                    // Prepare table data with error checking
+                    const tableData = currentUser.transactions.map(transaction => {
+                        try {
+                            const amount = parseFloat(transaction.amount) || 0;
+                            const balanceAfter = parseFloat(transaction.balanceAfter) || 0;
+                            const timestamp = transaction.timestamp ? new Date(transaction.timestamp).toLocaleString() : 'N/A';
+                            const type = transaction.type || 'Unknown';
+
+                            return [
+                                timestamp,
+                                type,
+                                `₹${amount.toFixed(2)}`,
+                                `₹${balanceAfter.toFixed(2)}`
+                            ];
+                        } catch (err) {
+                            return ['Error', 'Error', 'Error', 'Error'];
+                        }
+                    }).filter(row => row[0] !== 'Error'); // Remove any error rows
+
+                    if (tableData.length === 0) {
+                        showToast('No valid transactions to export', 'error');
+                        return;
+                    }
+
+                    // Add table
+                    doc.autoTable({
+                        startY: 50,
+                        head: [['Date & Time', 'Type', 'Amount', 'Balance']],
+                        body: tableData,
+                        theme: 'grid',
+                        styles: { 
+                            fontSize: 10,
+                            cellPadding: 3
+                        },
+                        headStyles: { 
+                            fillColor: [255, 140, 0],
+                            textColor: [255, 255, 255],
+                            fontStyle: 'bold'
+                        },
+                        alternateRowStyles: { 
+                            fillColor: [255, 245, 235]
+                        },
+                        margin: { top: 50 }
+                    });
+
+                    // Add footer
+                    const pageCount = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        doc.setPage(i);
+                        doc.setFontSize(8);
+                        doc.text(
+                            `Page ${i} of ${pageCount} - Generated on ${new Date().toLocaleString()}`,
+                            doc.internal.pageSize.width / 2,
+                            doc.internal.pageSize.height - 10,
+                            { align: 'center' }
+                        );
+                    }
+
+                    // Save PDF with proper filename
+                    const timestamp = new Date().toISOString().split('T')[0];
+                    const safeUsername = currentUser.username.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                    doc.save(`transaction-history-${safeUsername}-${timestamp}.pdf`);
+                    
+                    showToast('PDF exported successfully!', 'success');
+                } catch (error) {
+                    console.error('PDF Export Error:', error);
+                    showToast('Error generating PDF. Please try again.', 'error');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
